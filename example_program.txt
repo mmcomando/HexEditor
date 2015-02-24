@@ -1,0 +1,15 @@
+pos=0
+check=uint4(pos)
+header_size=uint4(pos)
+chunks_num=uint4(pos)
+
+custom header_chunk(pos,arg2,arg3){
+    chars_num=uint4(pos)
+    name=string(pos,chars_num)
+    addto(pos,chars_num)
+    data_pos=uint4(pos)
+    repeat=uint4(pos)
+    size=uint4(pos)[repeat]
+    out data_pos,name,size
+}
+header=header_chunk(pos,1,3)[chunks_num]

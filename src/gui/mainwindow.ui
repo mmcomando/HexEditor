@@ -14,7 +14,7 @@
    <bool>false</bool>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>HexEditor</string>
   </property>
   <property name="documentMode">
    <bool>false</bool>

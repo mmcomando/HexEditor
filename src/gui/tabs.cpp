@@ -181,7 +181,8 @@ void BinaryTab::Clear(){
     views[2]->setModel(0);
     views[3]->setModel(0);
     models.clear();
-    delete [] data;
+    if(data)delete[] data;
+    data=nullptr;
 }
 QWidget* BinaryTab::GetWidget() {
     return tab;

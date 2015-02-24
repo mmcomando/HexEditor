@@ -169,9 +169,6 @@ void MainWindow::on_pushButton_clicked() {
         moduleData.data=currBinaryTab->data;
         moduleData.dataSize=currBinaryTab->size;
         moduleData.ComputeAll(parserData,moduleData.globalNameSpace);
-        currBinaryTab->usedBlocks.swap(moduleData.usedBlocks);
-        RefreshBinary();
-
         //moduleData.mGlobalNameSpace.PrintVariables();
     } catch(ParseException& e) {
         QString txt("Exception: ");
@@ -187,7 +184,9 @@ void MainWindow::on_pushButton_clicked() {
         msgBox.setText("Unexpected Exception.");
         msgBox.exec();
     }
-        SetMenu(currEditTab->variables,currEditTab->model,moduleData);
+    currBinaryTab->usedBlocks.swap(moduleData.usedBlocks);
+    RefreshBinary();
+    SetMenu(currEditTab->variables,currEditTab->model,moduleData);
 
 }
 
