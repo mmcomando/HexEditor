@@ -119,6 +119,7 @@ bool ModuleData::BuildInFunction(const string& name) {
         uint a2=fl2->num;
         if(a1+a2>dataSize)throw string("Data overflow.");
         usedBlocks.push_back(make_pair(a1,a1+a2));
+        fl->num+=fl2->num;
         str.append(data+a1,a2);
         String* aa=new String(str);
         retStack=shared_ptr<Var>(aa);
