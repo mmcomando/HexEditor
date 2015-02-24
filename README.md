@@ -28,7 +28,7 @@ Example:
 
 ![Alt text](/screenshots/screenshot1.png?raw=true "Decoded header from binary file")
 #Safe and fast
-You can easily view and edit corrupted or unkown files.
+You can easily view and edit corrupted or unknown files.
 ![Alt text](/screenshots/screenshot2.png?raw=true "Decoded header from binary file")
 ##Internals
 * C++11
