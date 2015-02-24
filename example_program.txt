@@ -6,7 +6,6 @@ chunks_num=uint4(pos)
 custom header_chunk(pos,arg2,arg3){
     chars_num=uint4(pos)
     name=string(pos,chars_num)
-    addto(pos,chars_num)
     data_pos=uint4(pos)
     repeat=uint4(pos)
     size=uint4(pos)[repeat]
