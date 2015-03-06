@@ -44,6 +44,7 @@ struct BinaryTab {
     std::vector<std::pair<unsigned int,unsigned int>> usedBlocks;
     std::vector<BinaryViewModel*> models;
     std::vector<QTableView*> views;
+    QTextEdit* textEdit;
 
     QWidget* tab=nullptr;
     QSpinBox* colsSpin=nullptr;

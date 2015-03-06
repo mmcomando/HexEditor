@@ -6,6 +6,8 @@
 #include <QtGui/QSplitter>
 #include <QtGui/QHeaderView>
 
+     #include <QtGui/QTextEdit>
+
 #include <string>
 #include <fstream>
 using namespace std;
@@ -157,6 +159,14 @@ BinaryTab::BinaryTab(QWidget* parent) {
     hl->addWidget(views[3]);
     tabWidget->addTab(widget,"hex");
 
+    widget = new QWidget();
+    hl = new QHBoxLayout(widget);
+    hl->setSpacing(2);
+    hl->setContentsMargins(2, 2, 2, 2);
+    textEdit=new QTextEdit(parent);
+    hl->addWidget(textEdit);
+    tabWidget->addTab(widget,"chars");
+
     boxLayout->addWidget(tabWidget);
 }
 void BinaryTab::Init(std::string path) {
@@ -170,6 +180,14 @@ void BinaryTab::Init(std::string path) {
     views[1]->setModel(models[1]);
     views[2]->setModel(models[2]);
     views[3]->setModel(models[3]);
+    auto str=QString::fromAscii((char*)data,size);
+  /*  str=str.replace(QChar(0),QChar('-'));
+    str=str.replace(QChar(12),QChar('-'));
+    str=str.replace(QChar(13),QChar('-'));
+    str=str.replace(QChar(14),QChar('-'));
+    str=str.replace(QChar(15),QChar('-'));
+    textEdit->setWordWrapMode(QTextOption::WrapAnywhere);*/
+   textEdit->setText(str);
 
 }
 void BinaryTab::Clear(){

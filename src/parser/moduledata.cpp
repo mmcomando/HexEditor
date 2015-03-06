@@ -23,6 +23,8 @@ bool ModuleData::BuildInFunction(const string& name) {
         fl->num+=4;
         uint oo=*(unsigned int*)(data+num);
         Integer* aa=new Integer(oo);
+        aa->SetSize(4);
+        aa->SetStart(num);
         retStack=shared_ptr<Var>(aa);
     } else if(name=="uint2") {
         Integer* fl=dynamic_cast<Integer*>(parStack[0].get());
@@ -33,6 +35,8 @@ bool ModuleData::BuildInFunction(const string& name) {
         fl->num+=2;
         unsigned short oo=*(unsigned short*)(data+num);
         Integer* aa=new Integer(oo);
+        aa->SetSize(2);
+        aa->SetStart(num);
         retStack=shared_ptr<Var>(aa);
     } else if(name=="uint1") {
         Integer* fl=dynamic_cast<Integer*>(parStack[0].get());
@@ -43,6 +47,8 @@ bool ModuleData::BuildInFunction(const string& name) {
         fl->num+=1;
         unsigned char oo=*(unsigned char*)(data+num);
         Integer* aa=new Integer(oo);
+        aa->SetSize(1);
+        aa->SetStart(num);
         retStack=shared_ptr<Var>(aa);
     } else if(name=="int4") {
         Integer* fl=dynamic_cast<Integer*>(parStack[0].get());
@@ -53,6 +59,8 @@ bool ModuleData::BuildInFunction(const string& name) {
         fl->num+=4;
         int oo=*(int*)(data+num);
         Integer* aa=new Integer(oo);
+        aa->SetSize(4);
+        aa->SetStart(num);
         retStack=shared_ptr<Var>(aa);
     } else if(name=="int2") {
         Integer* fl=dynamic_cast<Integer*>(parStack[0].get());
@@ -63,6 +71,8 @@ bool ModuleData::BuildInFunction(const string& name) {
         fl->num+=2;
         short oo=*(short*)(data+num);
         Integer* aa=new Integer(oo);
+        aa->SetSize(2);
+        aa->SetStart(num);
         retStack=shared_ptr<Var>(aa);
     } else if(name=="int1") {
         Integer* fl=dynamic_cast<Integer*>(parStack[0].get());
@@ -73,6 +83,8 @@ bool ModuleData::BuildInFunction(const string& name) {
         fl->num+=1;
         char oo=*(char*)(data+num);
         Integer* aa=new Integer(oo);
+        aa->SetSize(1);
+        aa->SetStart(num);
         retStack=shared_ptr<Var>(aa);
     } else if(name=="float") {
         Integer* fl=dynamic_cast<Integer*>(parStack[0].get());
@@ -83,6 +95,8 @@ bool ModuleData::BuildInFunction(const string& name) {
         fl->num+=4;
         float oo=*(float*)(data+num);
         Float* aa=new Float(oo);
+        aa->SetSize(4);
+        aa->SetStart(num);
         retStack=shared_ptr<Var>(aa);
     }
 
@@ -122,6 +136,8 @@ bool ModuleData::BuildInFunction(const string& name) {
         fl->num+=fl2->num;
         str.append(data+a1,a2);
         String* aa=new String(str);
+        aa->SetSize(a2);
+        aa->SetStart(a1);
         retStack=shared_ptr<Var>(aa);
     } else {
         return false;
@@ -353,7 +369,7 @@ void Float::Print() {
 QString Float::toQString() {
     return QString::number(num);
 }
-void Float::set(QString& str) {
+void Float::Set(QString& str) {
     num=str.toDouble();
 }
 void Integer::Print() {
@@ -362,7 +378,7 @@ void Integer::Print() {
 QString Integer::toQString() {
     return QString::number(num);
 }
-void Integer::set(QString& str) {
+void Integer::Set(QString& str) {
     num=str.toLong();
 }
 void String::Print() {
@@ -371,8 +387,9 @@ void String::Print() {
 QString String::toQString() {
     return QString::fromStdString(str);
 }
-void String::set(QString& str_) {
-    str=str_.toStdString();
+void String::Set(QString& str_) {
+    if(str_.size()==str.size())
+        str=str_.toStdString();
 }
 void Custom::Print() {
     PrintShift();
@@ -389,6 +406,6 @@ void Custom::Print() {
 QString Custom::toQString() {
     return QString("custom");
 }
-void Custom::set(QString& ) {
+void Custom::Set(QString& ) {
     //num=0.1;
 }

@@ -15,13 +15,19 @@ struct Variable {
 Var is a base class for classes which are representing type and data loaded from binary data
 */
 struct Var {
+    unsigned int start=0;
+    int size=-1;
     virtual ~Var() {}
     ///allows printing Var content to standard output
     virtual void Print()=0;
     ///Makes a copy of given Var
     virtual Var* Copy()=0;
     virtual QString toQString()=0;
-    virtual void set(QString& str)=0;
+    virtual void Set(QString& str)=0;
+    int GetSize(){return size;}
+    void SetSize(int st){size=st;}
+    unsigned int GetStart(){return start;}
+    void SetStart(unsigned int st){start=st;}
 };
 ///Contains loaded floating point number
 struct Float:Var {
@@ -32,7 +38,7 @@ struct Float:Var {
         return new Float(num);
     };
     virtual QString toQString();
-    virtual void set(QString& str);
+    virtual void Set(QString& str);
 };
 ///Contains loaded integer number
 struct Integer:Var {
@@ -43,7 +49,7 @@ struct Integer:Var {
         return new Integer(num);
     };
     virtual QString toQString();
-    virtual void set(QString& str);
+    virtual void Set(QString& str);
 };
 ///Contains loaded string
 struct String:Var {
@@ -54,7 +60,7 @@ struct String:Var {
         return new String(str);
     };
     virtual QString toQString();
-    virtual void set(QString& str);
+    virtual void Set(QString& str);
 };
 ///Contains combined Vars
 struct Custom:Var {
@@ -66,7 +72,7 @@ struct Custom:Var {
         return var;
     };
     virtual QString toQString();
-    virtual void set(QString& str);
+    virtual void Set(QString& str);
 };
 
 /**

@@ -140,6 +140,10 @@ void BinaryViewModel::UpdateString(unsigned int stringNum)  {
     if(bdata->size<stringNum)return;
     strings[stringNum]=CharToQString(bdata->data[stringNum]);
 }
+void BinaryViewModel::UpdateData(void* data,unsigned int start,unsigned int size)  {
+    if(bdata->size<start+size)return;
+    memcpy(bdata->data+start,data,size);
+}
 ///////////////////
 TreeItem::TreeItem( TreeItem *parent) {
     parentItem = parent;
@@ -187,15 +191,15 @@ static TreeItem* GetItem(const std::string& varName,Var* var,TreeItem* parent) {
             item->appendChild(itemss);
         }
 
-    }else{
-          item->setData(var);
+    } else {
+        item->setData(var);
     }
     return item;
 }
 ////////
 
-TreeModel::TreeModel(ModuleData& data, QObject *parent)
-    : QAbstractItemModel(parent) {
+TreeModel::TreeModel(ModuleData& data,BinaryTab* bdata_, QObject *parent)
+    : QAbstractItemModel(parent),bdata(bdata_) {
     rootItem = new TreeItem();
     rootItem->setName(QString("nameee"));
     rootItem->setData(new String("conttt"));
@@ -267,23 +271,57 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const {
     if(index.column()==0) {
         return item->getName();
     } else {
-            return item->getData()->toQString();
+        return item->getData()->toQString();
     }
 }
 Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const {
     if (!index.isValid())
         return 0;
-
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    if(index.column()==0) {
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable ;
+    } else {
+        return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    }
 }
 QVariant TreeModel::headerData(int section, Qt::Orientation orientation,
                                int role) const {
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         if(section==0) {
             return rootItem->getName();
         } else {
             return rootItem->getData()->toQString();
         }
+    }
+
 
     return QVariant();
+}
+bool TreeModel::setData(const QModelIndex & index, const QVariant & value, int role) {
+    if (role == Qt::EditRole) {
+        TreeItem *item = static_cast<TreeItem*>(index.internalPointer());
+        QString s=value.toString();
+        Var* var=item->getData();
+        var->Set(s);
+        int size=var->GetSize();
+        if(size>0) {
+            if(Float* ff=dynamic_cast<Float*>(var)) {
+                *((float*)&bdata->data[ff->start])=(float)ff->num;
+            } else if(Integer* ff=dynamic_cast<Integer*>(var)) {
+                if(size==1)*((char*)&bdata->data[ff->start])=(char)ff->num;
+                else if(size==2)*((short*)&bdata->data[ff->start])=(short)ff->num;
+                else if(size==4)*((int*)&bdata->data[ff->start])=(int)ff->num;
+            } else if(String* ff=dynamic_cast<String*>(var)) {
+                memcpy(bdata->data+ff->start,&ff->str[0],size);
+            }
+            for(auto model:bdata->models) {
+                for(int i=0; i<size; i++)
+                    model->UpdateString(var->start+i);
+            }
+        }
+
+
+
+
+    }
+    return true;
 }
