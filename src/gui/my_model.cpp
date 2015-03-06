@@ -140,4 +140,148 @@ void BinaryViewModel::UpdateString(unsigned int stringNum)  {
     if(bdata->size<stringNum)return;
     strings[stringNum]=CharToQString(bdata->data[stringNum]);
 }
+///////////////////
+TreeItem::TreeItem( TreeItem *parent) {
+    parentItem = parent;
+}
+TreeItem::~TreeItem() {
+    qDeleteAll(childItems);
+}
 
+void TreeItem::appendChild(TreeItem *item) {
+    childItems.append(item);
+}
+TreeItem *TreeItem::child(int row) {
+    return childItems.value(row);
+}
+int TreeItem::childCount() const {
+    return childItems.count();
+}
+int TreeItem::row() const {
+    if (parentItem)
+        return parentItem->childItems.indexOf(const_cast<TreeItem*>(this));
+
+    return 0;
+}
+int TreeItem::columnCount() const {
+    return itemData.count();
+}
+QVariant TreeItem::data(int column) const {
+    return itemData.value(column);
+}
+void TreeItem::appendData(QVariant var) {
+    itemData.append(1);
+    itemData.back().swap(var);
+}
+TreeItem *TreeItem::parent() {
+    return parentItem;
+}
+//////////////
+static TreeItem* GetItem(const std::string& varName,Var* var,TreeItem* parent) {
+    TreeItem* item=new TreeItem(parent);
+    item->appendData(QString(varName.c_str()));
+    if(Float* ff=dynamic_cast<Float*>(var)) {
+        item->appendData(QString::number(ff->num));
+    } else if(Integer* ff=dynamic_cast<Integer*>(var)) {
+        item->appendData(QString::number(ff->num));
+    } else if(String* ff=dynamic_cast<String*>(var)) {
+        item->appendData(QString(ff->mStr.c_str()));
+    } else if(Custom* ff=dynamic_cast<Custom*>(var)) {
+        item->appendData(QString("custom"));
+        for(auto zvar:ff->vars) {
+            Var* var=zvar.second.mVar.get();
+            auto itemss=GetItem(zvar.first,var,item);
+            item->appendChild(itemss);
+        }
+
+    }
+    return item;
+}
+////////
+
+TreeModel::TreeModel(ModuleData& data, QObject *parent)
+    : QAbstractItemModel(parent) {
+    rootItem = new TreeItem();
+    rootItem->appendData(QString("nameee"));
+    rootItem->appendData(QString("conttt"));
+    for(auto varPair:data.globalNameSpace.variables) {
+        Var* var=varPair.second.mVar.get();
+        auto items=GetItem(varPair.first,var,rootItem);
+        rootItem->appendChild(items);
+    }
+}
+TreeModel::~TreeModel() {
+    delete rootItem;
+}
+QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent)
+const {
+    if (!hasIndex(row, column, parent))
+        return QModelIndex();
+
+    TreeItem *parentItem;
+
+    if (!parent.isValid())
+        parentItem = rootItem;
+    else
+        parentItem = static_cast<TreeItem*>(parent.internalPointer());
+
+    TreeItem *childItem = parentItem->child(row);
+    if (childItem)
+        return createIndex(row, column, childItem);
+    else
+        return QModelIndex();
+}
+QModelIndex TreeModel::parent(const QModelIndex &index) const {
+    if (!index.isValid())
+        return QModelIndex();
+
+    TreeItem *childItem = static_cast<TreeItem*>(index.internalPointer());
+    TreeItem *parentItem = childItem->parent();
+
+    if (parentItem == rootItem)
+        return QModelIndex();
+
+    return createIndex(parentItem->row(), 0, parentItem);
+}
+int TreeModel::rowCount(const QModelIndex &parent) const {
+    TreeItem *parentItem;
+    if (parent.column() > 0)
+        return 0;
+
+    if (!parent.isValid())
+        parentItem = rootItem;
+    else
+        parentItem = static_cast<TreeItem*>(parent.internalPointer());
+
+    return parentItem->childCount();
+}
+int TreeModel::columnCount(const QModelIndex &parent) const {
+    if (parent.isValid())
+        return static_cast<TreeItem*>(parent.internalPointer())->columnCount();
+    else
+        return rootItem->columnCount();
+}
+QVariant TreeModel::data(const QModelIndex &index, int role) const {
+    if (!index.isValid())
+        return QVariant();
+
+    if (role != Qt::DisplayRole)
+        return QVariant();
+
+    TreeItem *item = static_cast<TreeItem*>(index.internalPointer());
+
+    return item->data(index.column());
+}
+Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const {
+    if (!index.isValid())
+        return 0;
+
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+QVariant TreeModel::headerData(int section, Qt::Orientation orientation,
+                               int role) const {
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
+        return rootItem->data(section);
+
+    return QVariant();
+}

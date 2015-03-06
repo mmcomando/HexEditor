@@ -186,8 +186,11 @@ void MainWindow::on_pushButton_clicked() {
     }
     currBinaryTab->usedBlocks.swap(moduleData.usedBlocks);
     RefreshBinary();
-    SetMenu(currEditTab->variables,currEditTab->model,moduleData);
+    //SetMenu(currEditTab->variables,currEditTab->model,moduleData);
 
+    TreeModel* myModel=new TreeModel(moduleData);
+    currEditTab->variables->setModel(myModel);
+    currEditTab->variables->collapseAll();
 }
 
 
