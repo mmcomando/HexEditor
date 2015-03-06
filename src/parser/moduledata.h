@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <QtCore/QString>
 
 #include "parser.h"
 struct Var;
@@ -19,6 +20,8 @@ struct Var {
     virtual void Print()=0;
     ///Makes a copy of given Var
     virtual Var* Copy()=0;
+    virtual QString toQString()=0;
+    virtual void set(QString& str)=0;
 };
 ///Contains loaded floating point number
 struct Float:Var {
@@ -28,6 +31,8 @@ struct Float:Var {
     virtual Var* Copy() {
         return new Float(num);
     };
+    virtual QString toQString();
+    virtual void set(QString& str);
 };
 ///Contains loaded integer number
 struct Integer:Var {
@@ -37,15 +42,19 @@ struct Integer:Var {
     virtual Var* Copy() {
         return new Integer(num);
     };
+    virtual QString toQString();
+    virtual void set(QString& str);
 };
 ///Contains loaded string
 struct String:Var {
-    std::string mStr;
-    String(std::string str):mStr(str) {}
+    std::string str;
+    String(std::string str_):str(str_) {}
     virtual void Print();
     virtual Var* Copy() {
-        return new String(mStr);
+        return new String(str);
     };
+    virtual QString toQString();
+    virtual void set(QString& str);
 };
 ///Contains combined Vars
 struct Custom:Var {
@@ -56,6 +65,8 @@ struct Custom:Var {
         var->vars=vars;
         return var;
     };
+    virtual QString toQString();
+    virtual void set(QString& str);
 };
 
 /**

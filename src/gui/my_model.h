@@ -44,14 +44,18 @@ public:
     TreeItem *child(int row);
     int childCount() const;
     int columnCount() const;
-    QVariant data(int column) const;
-    void appendData(QVariant var);
+    //QVariant data(int column) const;
+    void setName(QString name_){name=name_;}
+    void setData(Var* var_){var=var_;}
+    QString& getName(){return name;}
+    Var* getData(){return var;}
     int row() const;
     TreeItem *parent();
 
 private:
     QList<TreeItem*> childItems;
-    QList<QVariant> itemData;
+    QString name;
+    Var* var=nullptr;
     TreeItem *parentItem;
 };
 

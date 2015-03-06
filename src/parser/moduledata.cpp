@@ -350,11 +350,29 @@ void ModuleData::NameSpace::PrintVariables() {
 void Float::Print() {
     cout<<num<<endl;
 }
+QString Float::toQString() {
+    return QString::number(num);
+}
+void Float::set(QString& str) {
+    num=str.toDouble();
+}
 void Integer::Print() {
     cout<<num<<endl;
 }
+QString Integer::toQString() {
+    return QString::number(num);
+}
+void Integer::set(QString& str) {
+    num=str.toLong();
+}
 void String::Print() {
-    cout<<mStr<<endl;
+    cout<<str<<endl;
+}
+QString String::toQString() {
+    return QString::fromStdString(str);
+}
+void String::set(QString& str_) {
+    str=str_.toStdString();
 }
 void Custom::Print() {
     PrintShift();
@@ -367,4 +385,10 @@ void Custom::Print() {
         var.second.mVar->Print();
     }
     shift-=4;
+}
+QString Custom::toQString() {
+    return QString("custom");
+}
+void Custom::set(QString& ) {
+    //num=0.1;
 }

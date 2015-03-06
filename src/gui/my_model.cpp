@@ -164,14 +164,7 @@ int TreeItem::row() const {
     return 0;
 }
 int TreeItem::columnCount() const {
-    return itemData.count();
-}
-QVariant TreeItem::data(int column) const {
-    return itemData.value(column);
-}
-void TreeItem::appendData(QVariant var) {
-    itemData.append(1);
-    itemData.back().swap(var);
+    return 2;
 }
 TreeItem *TreeItem::parent() {
     return parentItem;
@@ -179,21 +172,23 @@ TreeItem *TreeItem::parent() {
 //////////////
 static TreeItem* GetItem(const std::string& varName,Var* var,TreeItem* parent) {
     TreeItem* item=new TreeItem(parent);
-    item->appendData(QString(varName.c_str()));
-    if(Float* ff=dynamic_cast<Float*>(var)) {
-        item->appendData(QString::number(ff->num));
-    } else if(Integer* ff=dynamic_cast<Integer*>(var)) {
-        item->appendData(QString::number(ff->num));
-    } else if(String* ff=dynamic_cast<String*>(var)) {
-        item->appendData(QString(ff->mStr.c_str()));
-    } else if(Custom* ff=dynamic_cast<Custom*>(var)) {
-        item->appendData(QString("custom"));
+    item->setName(QString(varName.c_str()));
+    /* if(Float* ff=dynamic_cast<Float*>(var)) {
+         item->appendData(QString::number(ff->num));
+     } else if(Integer* ff=dynamic_cast<Integer*>(var)) {
+         item->appendData(QString::number(ff->num));
+     } else if(String* ff=dynamic_cast<String*>(var)) {
+         item->appendData(QString(ff->mStr.c_str()));
+     } else */if(Custom* ff=dynamic_cast<Custom*>(var)) {
+        item->setData(new String("custom"));
         for(auto zvar:ff->vars) {
             Var* var=zvar.second.mVar.get();
             auto itemss=GetItem(zvar.first,var,item);
             item->appendChild(itemss);
         }
 
+    }else{
+          item->setData(var);
     }
     return item;
 }
@@ -202,8 +197,8 @@ static TreeItem* GetItem(const std::string& varName,Var* var,TreeItem* parent) {
 TreeModel::TreeModel(ModuleData& data, QObject *parent)
     : QAbstractItemModel(parent) {
     rootItem = new TreeItem();
-    rootItem->appendData(QString("nameee"));
-    rootItem->appendData(QString("conttt"));
+    rootItem->setName(QString("nameee"));
+    rootItem->setData(new String("conttt"));
     for(auto varPair:data.globalNameSpace.variables) {
         Var* var=varPair.second.mVar.get();
         auto items=GetItem(varPair.first,var,rootItem);
@@ -269,8 +264,11 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const {
         return QVariant();
 
     TreeItem *item = static_cast<TreeItem*>(index.internalPointer());
-
-    return item->data(index.column());
+    if(index.column()==0) {
+        return item->getName();
+    } else {
+            return item->getData()->toQString();
+    }
 }
 Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const {
     if (!index.isValid())
@@ -281,7 +279,11 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const {
 QVariant TreeModel::headerData(int section, Qt::Orientation orientation,
                                int role) const {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return rootItem->data(section);
+        if(section==0) {
+            return rootItem->getName();
+        } else {
+            return rootItem->getData()->toQString();
+        }
 
     return QVariant();
 }
